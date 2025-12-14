@@ -3,12 +3,16 @@ import Navbar from '@/components/Navbar'
 import BookingButton from './BookingButton'
 import Link from 'next/link'
 
-// Parameter `params` berisi ID dari URL (Contoh: /events/12)
-export default async function EventDetail({ params }: { params: { id: string } }) {
+// Perhatikan tipe data params di sini berubah menjadi Promise
+export default async function EventDetail({ params }: { params: Promise<{ id: string }> }) {
+  
+  // SOLUSI: Kita harus await params-nya dulu sebelum mengambil ID
+  const { id } = await params 
+
   const { data: event } = await supabase
     .from('events')
     .select('*')
-    .eq('id', params.id)
+    .eq('id', id) // Gunakan variabel 'id' yang sudah di-await tadi
     .single()
 
   if (!event) {
@@ -22,7 +26,7 @@ export default async function EventDetail({ params }: { params: { id: string } }
 
   return (
     <>
-      <Navbar />
+   
       <div className="min-h-screen bg-gray-50 py-10 px-6">
         <div className="container mx-auto max-w-5xl">
           <Link href="/" className="text-gray-500 hover:text-black mb-4 inline-block">← Back to Events</Link>
@@ -59,7 +63,7 @@ export default async function EventDetail({ params }: { params: { id: string } }
                         {event.price === 0 ? 'Free' : `Rp ${event.price.toLocaleString()}`}
                     </span>
                 </div>
-                {/* Client Component untuk tombol booking */}
+                {/* Kirim ID ke tombol booking */}
                 <BookingButton eventId={event.id} />
               </div>
             </div>
