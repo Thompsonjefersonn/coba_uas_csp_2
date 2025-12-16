@@ -11,7 +11,7 @@ export default function BookingButton({ eventId }: { eventId: number }) {
   const handleBooking = async () => {
     setLoading(true)
 
-    // 1. Cek User Login
+   
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {

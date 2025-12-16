@@ -5,19 +5,33 @@ import { supabase } from '../../lib/supabase'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
+// 1. Definisikan tipe untuk form state agar lebih rapi
+interface EventFormData {
+  title: string
+  date: string
+  location: string
+  description: string
+  price: number | string // Bisa string saat diketik di input
+  image_url: string
+}
+
 export default function CreateEvent() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
-  const [formData, setFormData] = useState({
+  
+  // Gunakan interface di state
+  const [formData, setFormData] = useState<EventFormData>({
     title: '',
     date: '',
     location: '',
     description: '',
     price: 0,
-    image_url: 'https://images.unsplash.com/photo-1540575467063-178a50935278?w=800&q=80' // Default gambar
+    image_url: 'https://images.unsplash.com/photo-1540575467063-178a50935278?w=800&q=80'
   })
 
-  const handleChange = (e: any) => {
+  // 2. Perbaiki tipe event handler
+  // HTMLInputElement untuk <input>, HTMLTextAreaElement untuk <textarea>
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
@@ -30,10 +44,16 @@ export default function CreateEvent() {
       if (error) throw error
       
       alert('Event berhasil dibuat!')
-      router.push('/dashboard') // Balik ke dashboard
+      router.push('/dashboard')
       router.refresh()
-    } catch (err: any) {
-      alert('Error: ' + err.message)
+    } catch (err) {
+      // 3. Cara menangani error tanpa 'any'
+      // Kita anggap error tersebut adalah object Error standar
+      if (err instanceof Error) {
+         alert('Error: ' + err.message)
+      } else {
+         alert('An unknown error occurred')
+      }
     } finally {
       setLoading(false)
     }
@@ -47,34 +67,72 @@ export default function CreateEvent() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-bold mb-1">Event Title</label>
-            <input name="title" required onChange={handleChange} className="w-full border p-2 rounded" placeholder="Contoh: Belajar Next.js" />
+            <input 
+              name="title" 
+              required 
+              onChange={handleChange} 
+              className="w-full border p-2 rounded" 
+              placeholder="Contoh: Belajar Next.js" 
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-bold mb-1">Date</label>
-              <input type="date" name="date" required onChange={handleChange} className="w-full border p-2 rounded" />
+              <input 
+                type="date" 
+                name="date" 
+                required 
+                onChange={handleChange} 
+                className="w-full border p-2 rounded" 
+              />
             </div>
             <div>
               <label className="block text-sm font-bold mb-1">Price (Rp)</label>
-              <input type="number" name="price" required onChange={handleChange} className="w-full border p-2 rounded" placeholder="0" />
+              <input 
+                type="number" 
+                name="price" 
+                required 
+                onChange={handleChange} 
+                className="w-full border p-2 rounded" 
+                placeholder="0" 
+              />
             </div>
           </div>
 
           <div>
             <label className="block text-sm font-bold mb-1">Location</label>
-            <input name="location" required onChange={handleChange} className="w-full border p-2 rounded" placeholder="Contoh: Jakarta / Online" />
+            <input 
+              name="location" 
+              required 
+              onChange={handleChange} 
+              className="w-full border p-2 rounded" 
+              placeholder="Contoh: Jakarta / Online" 
+            />
           </div>
 
           <div>
             <label className="block text-sm font-bold mb-1">Image URL</label>
-            <input name="image_url" value={formData.image_url} onChange={handleChange} className="w-full border p-2 rounded" placeholder="Link gambar (https://...)" />
+            <input 
+              name="image_url" 
+              value={formData.image_url} 
+              onChange={handleChange} 
+              className="w-full border p-2 rounded" 
+              placeholder="Link gambar (https://...)" 
+            />
             <p className="text-xs text-gray-500 mt-1">Gunakan link gambar langsung. Sementara pakai default jika kosong.</p>
           </div>
 
           <div>
             <label className="block text-sm font-bold mb-1">Description</label>
-            <textarea name="description" required rows={4} onChange={handleChange} className="w-full border p-2 rounded" placeholder="Deskripsi event..." />
+            <textarea 
+              name="description" 
+              required 
+              rows={4} 
+              onChange={handleChange} 
+              className="w-full border p-2 rounded" 
+              placeholder="Deskripsi event..." 
+            />
           </div>
 
           <div className="flex gap-4 mt-6">
